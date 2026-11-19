@@ -12,7 +12,8 @@ dependencies = [
     "questionary>=2.0",
     "rich>=13.0",
     "jinja2>=3.1",
-    "openstacksdk>=3.0",
+    # 4.23.0 est mal empaqueté (fichiers defaults.json et vendors/*.json absents) : connexion impossible.
+    "openstacksdk>=3.0,!=4.23.0",
     "pyyaml>=6.0",
 ]
 
