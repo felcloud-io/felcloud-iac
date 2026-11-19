@@ -96,6 +96,14 @@ def apply(project_dir):
     else:
         ok = _run(binary, ["up", "--yes", "--skip-preview"], project_dir, tool)
     if not ok:
+        # L'API de FelCloud renvoie parfois une erreur passagère (408, EOF) pendant qu'une
+        # machine démarre : un second passage termine ce qui manque.
+        ui.warn("Erreur pendant la création : nouvel essai (souvent une erreur passagère de l'API).")
+        if tool == "terraform":
+            ok = _run(binary, ["apply", "-input=false", "-auto-approve"], project_dir, tool)
+        else:
+            ok = _run(binary, ["up", "--yes", "--skip-preview"], project_dir, tool)
+    if not ok:
         ui.err(f"La création a échoué (voir le message ci-dessus). Relance-la depuis le dossier "
                f"du projet : {'terraform apply' if tool == 'terraform' else 'pulumi up'}")
         return False
@@ -141,7 +149,10 @@ def _port_open(ip, port=22):
 
 def _check_one(name, command, deadline):
     """Attend que le port 22 réponde, puis teste une vraie connexion avec la clé."""
-    args = shlex.split(command)
+    # « ~ » développé ici : ssh le développerait avec le dossier personnel du compte,
+    # pas avec $HOME.
+    args = [os.path.expanduser(a) if a.startswith("~") else
+            a.replace("-i ~/", f"-i {Path.home()}/") for a in shlex.split(command)]
     target = args[-1]
     ip = target.split("@")[-1]
     via_jump = "-o" in args and any(a.startswith("ProxyCommand=") for a in args)
@@ -224,9 +235,14 @@ def check_connectivity(project_dir):
                     "réseau » ; sinon, signale-le au support FelCloud avec l'IP concernée.")
         elif status == "denied":
             ui.err(f"{name} : la machine répond mais refuse la clé SSH")
-            ui.hint("Utilise exactement la commande de « terraform output ssh » (bonne clé, bon "
-                    "utilisateur). Si elle échoue aussi, recrée la machine : terraform apply "
-                    f"-replace='openstack_compute_instance_v2.vm[\"{name}\"]'")
+            if tool_of(project_dir) == "terraform":
+                ui.hint("Utilise exactement la commande de « terraform output ssh » (bonne clé, bon "
+                        "utilisateur). Si elle échoue aussi, recrée la machine : terraform apply "
+                        f"-replace='openstack_compute_instance_v2.vm[\"{name}\"]'")
+            else:
+                ui.hint("Utilise exactement la commande de « pulumi stack output ssh --json » (bonne clé, "
+                        "bon utilisateur). Si elle échoue aussi, réessaie dans quelques minutes : "
+                        f"felcloud test {project_dir.name}")
         elif status == "skipped":
             ui.warn(f"{name} : non testée (la machine de rebond ne répond pas)")
         else:

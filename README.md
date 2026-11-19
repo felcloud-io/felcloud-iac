@@ -70,17 +70,26 @@ felcloud install go            # en plus, pour Pulumi en Go
 felcloud new
 ```
 
-Réponds aux questions (**flèches** pour choisir, **Espace** pour cocher, **Entrée** pour valider).
-En cas de doute, garde la réponse proposée. Les bons choix :
+Réponds aux questions :
+
+| Touche | Action |
+|---|---|
+| **↑ ↓** | se déplacer dans la liste (une ligne d'aide grise explique le choix pointé) |
+| **Espace** | cocher / décocher (listes avec ● et ○) |
+| **Entrée** | valider |
+| **Échap** | revenir à la question précédente (ta réponse est gardée) |
+
+En cas de doute, garde la réponse proposée, marquée « (recommandé) ». Les bons choix :
 
 | Question | Réponse conseillée |
 |---|---|
 | Outil | Terraform, ou Pulumi en Python, JavaScript ou Go : même résultat |
 | Réseau | Créer un nouveau réseau |
-| Accès depuis Internet | Ajouter une VM bastion dédiée |
-| Internet pour les machines privées | Via un proxy |
+| Accès depuis Internet | Par un bastion (dès 2 machines) ; directement pour une seule machine |
+| Internet pour les machines sans IP publique | Oui, via un proxy |
 
-À la fin, accepte l'**aperçu** puis la **création**. Attends 2 à 5 minutes que felcloud affiche :
+Un **récapitulatif** s'affiche : choisis « Générer le projet », ou « Modifier : … » pour corriger une partie.
+Accepte ensuite l'**aperçu** puis la **création**. Attends 2 à 5 minutes que felcloud affiche :
 
 ```
 ✓ Toutes les machines répondent en SSH.

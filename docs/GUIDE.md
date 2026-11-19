@@ -78,12 +78,12 @@ felcloud install pulumi
 felcloud new
 ```
 
-Réponds aux questions (flèches pour choisir, **Espace** pour cocher, **Entrée** pour valider). En cas de doute, garde la réponse proposée : ce sont les choix recommandés. En particulier :
+Réponds aux questions (flèches pour choisir, **Espace** pour cocher, **Entrée** pour valider, **Échap** pour revenir à la question précédente). Un récapitulatif final permet de modifier n'importe quelle partie avant de générer. En cas de doute, garde la réponse proposée : ce sont les choix recommandés. En particulier :
 
 - **Outil** → Terraform (fichiers de configuration `.tf`) ou Pulumi (un programme Python) : les deux créent exactement la même infrastructure ;
 - **Réseau** → « Créer un nouveau réseau » ;
-- **Accès depuis Internet** → « Ajouter une VM bastion dédiée » ;
-- **Internet pour les machines privées** → « Via un proxy ».
+- **Accès depuis Internet** → « Par un bastion » (dès 2 machines ; pour une seule, « Directement ») ;
+- **Internet pour les machines sans IP publique** → « Oui, via un proxy ».
 
 À la fin, accepte l'**aperçu** (rien n'est créé), puis la **création**. felcloud attend que les machines démarrent (2 à 5 minutes) et affiche :
 
@@ -320,12 +320,12 @@ L'assistant te pose une série de questions. Pour chacune, une réponse raisonna
 
 | Brique | Ce que ça crée |
 |---|---|
-| Réseau complet | un réseau privé, sa plage d'adresses, et un routeur relié au réseau externe |
+| Réseau | un réseau privé, sa plage d'adresses, et un routeur relié au réseau externe |
 | Pare-feu | un security group : tu coches les ouvertures (SSH, HTTP, HTTPS, ping, trafic entre tes machines, ports libres) |
 | Clé SSH | une clé dédiée au projet (recommandé), une de tes clés existantes, ou une clé déjà enregistrée sur le cloud |
 | Machines virtuelles | le nombre, le système, la taille, les noms |
-| Adresse IP publique | une **VM bastion dédiée** comme seule porte d'entrée (recommandé), ou une IP publique directement sur certaines de tes machines |
-| Volumes | des disques supplémentaires, leur taille, leur type (NVMe rapide ou HDD économique), la machine à laquelle les attacher |
+| IP publique | un **bastion** (petite machine en plus, seule porte d'entrée : recommandé dès 2 machines), ou une IP publique directement sur les machines de ton choix |
+| Disques supplémentaires | des volumes, leur taille, leur type (NVMe rapide ou HDD économique), la machine à laquelle les attacher |
 
 **3. Les détails de chaque brique.** Les listes de systèmes, de tailles, de réseaux et de types de disque sont **lues en direct sur FelCloud** : tu ne peux choisir que ce qui existe vraiment sur ton projet. L'assistant vérifie aussi tes quotas avant de générer.
 
@@ -500,7 +500,7 @@ Tu peux y ranger **plusieurs clouds** (un par projet, par exemple), chacun sous 
 | `felcloud destroy [PROJET]` | supprimer un projet : cloud, dossier, clé |
 | `felcloud --help` | aide |
 
-Dans les menus : **flèches** pour se déplacer, **Entrée** pour valider, **Espace** pour cocher, **Ctrl+C** pour quitter à tout moment.
+Dans les menus : **flèches** pour se déplacer, **Entrée** pour valider, **Espace** pour cocher, **Échap** pour revenir à la question précédente, **Ctrl+C** pour quitter à tout moment.
 
 ## 10. En cas de problème
 

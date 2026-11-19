@@ -77,7 +77,7 @@ def build_context(a):
     sg = a.get("security_group")
     sg_summary = ""
     if sg:
-        parts = [label.split(" (")[0].split(" —")[0] for key, label, _ in SG_RULES if key in sg["rules"]]
+        parts = [label.split(" (")[0] for key, label, _, _ in SG_RULES if key in sg["rules"]]
         parts += [f"TCP {p}" for p in sg["custom_tcp_ports"]]
         sg_summary = ", ".join(parts) or "aucune ouverture"
 

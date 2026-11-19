@@ -8,4 +8,8 @@ write_files:
 runcmd:
   - /usr/local/sbin/apt-fiable nginx
   - echo "<h1>Bonjour depuis $(hostname)</h1><p>Machine créée avec felcloud ({{ a.project }}).</p>" > /var/www/html/index.html
-  - systemctl enable --now nginx
+  # Certaines images (Ubuntu 26.04 de FelCloud) démarrent sans IPv6 : nginx refuse alors de
+  # démarrer avec sa configuration par défaut, qui écoute aussi en IPv6.
+  - '[ -e /proc/net/if_inet6 ] || sed -i "/listen \[::\]/d" /etc/nginx/sites-enabled/default'
+  - systemctl enable nginx
+  - systemctl restart nginx

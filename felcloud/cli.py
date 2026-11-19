@@ -84,13 +84,13 @@ def cmd_new(args):
 
     tf = answers["tool"] == "terraform"
     created = False
-    if interactive and not args.no_preview and ui.confirm(
+    if interactive and not args.no_preview and _yes(
             "Lancer l'aperçu maintenant (" + ("terraform init + plan" if tf else "pulumi preview")
             + ", rien n'est créé) ?", default=True):
         if not runner.preview(dest):
             return 1
-        if ui.confirm("Créer réellement cette infrastructure maintenant ("
-                      + ("terraform apply" if tf else "pulumi up") + ") ?", default=False):
+        if _yes("Créer réellement cette infrastructure maintenant ("
+                + ("terraform apply" if tf else "pulumi up") + ") ?", default=False):
             created = runner.apply(dest)
             if not created:
                 return 1
@@ -98,6 +98,14 @@ def cmd_new(args):
 
     _next_steps(dest, created, tf)
     return 0
+
+
+def _yes(message, default):
+    """Le projet est déjà écrit : Échap vaut « Non » au lieu de tout annuler."""
+    try:
+        return ui.confirm(message, default=default)
+    except ui.Back:
+        return False
 
 
 def _passphrase_line():
