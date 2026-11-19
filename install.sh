@@ -46,11 +46,19 @@ rc_files() {
 FISH_CONF="$HOME/.config/fish/conf.d/felcloud.fish"
 
 if [[ "$MODE" == "uninstall" ]]; then
+  # Liens vers les outils installés par felcloud (go, node...) : ils pointeraient dans le vide.
+  for name in go gofmt node npm npx; do
+    link="$BIN_DIR/$name"
+    if [[ -L "$link" && "$(readlink "$link")" == "$APP_DIR"/* ]]; then rm -f "$link"; fi
+  done
   rm -rf "$APP_DIR"
   rm -f "$BIN_DIR/felcloud" "$FISH_CONF"
   for rc in $(rc_files); do
     if [[ -f "$rc" ]] && grep -q "$MARK" "$rc"; then
-      grep -v "$MARK" "$rc" > "$rc.felcloud-tmp" && mv "$rc.felcloud-tmp" "$rc"
+      # grep -v échoue si plus aucune ligne ne reste ; cat (et non mv) préserve un lien symbolique.
+      grep -v "$MARK" "$rc" > "$rc.felcloud-tmp" || true
+      cat "$rc.felcloud-tmp" > "$rc"
+      rm -f "$rc.felcloud-tmp"
     fi
   done
   green "felcloud désinstallé."
@@ -74,7 +82,18 @@ system_python_ok() {
 }
 
 mkdir -p "$APP_DIR"
-rm -rf "$APP_DIR/venv"
+# L'ancienne installation est mise de côté et restaurée si la nouvelle échoue
+# (un venv ne se renomme pas après coup : ses chemins sont écrits en dur).
+rm -rf "$APP_DIR/venv.old"
+if [[ -d "$APP_DIR/venv" ]]; then mv "$APP_DIR/venv" "$APP_DIR/venv.old"; fi
+restore_previous() {
+  if [[ -d "$APP_DIR/venv.old" ]]; then
+    rm -rf "$APP_DIR/venv"
+    mv "$APP_DIR/venv.old" "$APP_DIR/venv"
+    yellow "Installation interrompue : la version précédente de felcloud a été restaurée."
+  fi
+}
+trap restore_previous EXIT
 if system_python_ok; then
   green "Python $(python3 -c 'import platform; print(platform.python_version())')"
   python3 -m venv "$APP_DIR/venv"
@@ -104,6 +123,7 @@ if [[ "$MODE" == "dev" ]]; then
 else
   "${PIP[@]}" "$SOURCE"
 fi
+rm -rf "$APP_DIR/venv.old"
 green "felcloud installé"
 
 mkdir -p "$BIN_DIR"

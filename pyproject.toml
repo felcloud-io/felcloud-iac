@@ -16,6 +16,10 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
+[project.urls]
+Repository = "https://github.com/felcloud-io/felcloud-iac"
+Issues = "https://github.com/felcloud-io/felcloud-iac/issues"
+
 [project.scripts]
 felcloud = "felcloud.cli:main"
 
@@ -23,4 +27,4 @@ felcloud = "felcloud.cli:main"
 include = ["felcloud*"]
 
 [tool.setuptools.package-data]
-felcloud = ["catalog/*.yaml", "templates/**/*"]
+felcloud = ["templates/**/*"]

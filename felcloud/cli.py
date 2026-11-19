@@ -53,7 +53,17 @@ def cmd_new(args):
     from felcloud import generator, runner, wizard
 
     if args.answers:
-        answers = yaml.safe_load(Path(args.answers).read_text())
+        try:
+            answers = yaml.safe_load(Path(args.answers).expanduser().read_text())
+        except (OSError, yaml.YAMLError) as exc:
+            ui.err(f"Impossible de lire {args.answers} : {exc}")
+            return 1
+        errors = wizard.validate_answers(answers)
+        if errors:
+            ui.err(f"{args.answers} n'est pas un fichier de réponses valide :")
+            for error in errors:
+                ui.hint(f"  {error}")
+            return 1
         interactive = False
     else:
         if not args.output and not config.projects_dir_chosen():

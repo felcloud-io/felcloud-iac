@@ -166,13 +166,17 @@ def _check_one(name, command, deadline):
         if via_jump:
             cmd = [a.replace("ssh -i", "ssh " + " ".join(SSH_OPTS) + " -i", 1) if a.startswith("ProxyCommand=")
                    else a for a in cmd]
-        res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-        if res.returncode == 0:
+        try:
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            code, stderr = res.returncode, res.stderr.strip()
+        except subprocess.TimeoutExpired:
+            code, stderr = 1, "la connexion SSH n'a pas abouti en 60 secondes"
+        if code == 0:
             return name, "ok", ""
-        if "Permission denied" in res.stderr and time.time() > deadline - SSH_WAIT_SECONDS + 240:
-            return name, "denied", res.stderr.strip()
+        if "Permission denied" in stderr and time.time() > deadline - SSH_WAIT_SECONDS + 240:
+            return name, "denied", stderr
         if time.time() > deadline:
-            return name, "timeout", res.stderr.strip()
+            return name, "timeout", stderr
         time.sleep(10)
 
 

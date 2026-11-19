@@ -28,6 +28,15 @@ def _unsupported():
     return None
 
 
+def _extract(tar, member, target, kind):
+    """tar.extract avec filtre de sécurité ; les Python sans ce filtre (avant 3.10.12 / 3.11.4)
+    n'acceptent pas l'argument, on refuse alors nous-mêmes les chemins qui sortent du dossier."""
+    if hasattr(tarfile, "data_filter"):
+        tar.extract(member, target, filter=kind)
+    elif not member.name.startswith("/") and ".." not in member.name.split("/"):
+        tar.extract(member, target)
+
+
 def _get(url):
     with urllib.request.urlopen(url, timeout=60) as response:
         return response.read()
@@ -100,7 +109,7 @@ def install_pulumi():
             # L'archive contient pulumi/<binaire> : on aplatit dans ~/.pulumi/bin.
             if member.isfile() and member.name.startswith("pulumi/"):
                 member.name = member.name.split("/", 1)[1]
-                tar.extract(member, bin_dir, filter="data")
+                _extract(tar, member, bin_dir, "data")
                 (bin_dir / member.name).chmod(0o755)
     ui.ok(f"Pulumi {version} installé dans {bin_dir}")
     link_pulumi()
@@ -143,7 +152,7 @@ def _extract_tar(data, target):
             if len(parts) < 2 or not parts[1]:
                 continue
             member.name = parts[1]
-            tar.extract(member, target, filter="tar")
+            _extract(tar, member, target, "tar")
 
 
 def _link(names, source_dir):

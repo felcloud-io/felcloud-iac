@@ -111,7 +111,10 @@ def is_protected():
 
 def protect():
     """Rend le fichier lisible par son seul propriétaire (chmod 600)."""
-    CLOUDS_DIR.chmod(0o700)
+    # Seulement le dossier standard : avec OS_CLIENT_CONFIG_FILE, le parent peut être
+    # le dossier personnel ou un dossier partagé, qu'on ne doit pas modifier.
+    if CLOUDS_DIR == Path.home() / ".config" / "openstack" and CLOUDS_DIR.is_dir():
+        CLOUDS_DIR.chmod(0o700)
     if CLOUDS_FILE.exists():
         CLOUDS_FILE.chmod(0o600)
 

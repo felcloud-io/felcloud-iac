@@ -124,6 +124,78 @@ def _valid_int(low, high):
     return check
 
 
+# Valeurs recopiées telles quelles dans le code généré (commentaires, chaînes, commandes SSH).
+_SAFE_TEXT = re.compile(r"^[\w ./~@+:-]*$")
+
+
+def validate_answers(a):
+    """Contrôle un felcloud.yaml fourni avec --answers (il peut venir de quelqu'un d'autre) :
+    mêmes règles que l'assistant, pour qu'aucune valeur ne puisse sortir du dossier des
+    projets ni injecter du code dans les fichiers générés. Retourne la liste des erreurs."""
+    if not isinstance(a, dict):
+        return ["le fichier ne contient pas de réponses felcloud"]
+    errors = []
+
+    def name(value, what):
+        if not isinstance(value, str) or not NAME_RE.match(value):
+            errors.append(f"{what} : {value!r} invalide ({NAME_RULE})")
+
+    def safe(value, what):
+        if not isinstance(value, str) or not _SAFE_TEXT.match(value):
+            errors.append(f"{what} : {value!r} contient des caractères non autorisés")
+
+    def strings(node):
+        if isinstance(node, dict):
+            for v in node.values():
+                yield from strings(v)
+        elif isinstance(node, list):
+            for v in node:
+                yield from strings(v)
+        elif isinstance(node, str):
+            yield node
+
+    name(a.get("project"), "project")
+    if a.get("tool") not in TOOLS:
+        errors.append(f"tool : {a.get('tool')!r} inconnu ({', '.join(TOOLS)})")
+    safe(a.get("cloud"), "cloud")
+    for text in strings(a):
+        if any(ord(c) < 32 or ord(c) == 127 for c in text):
+            errors.append(f"{text!r} : retours à la ligne et caractères de contrôle interdits")
+
+    net = a.get("network") or {}
+    for key in ("name", "external_network"):
+        if key in net:
+            safe(net[key], f"network.{key}")
+    if net.get("mode") == "create" and _valid_cidr(str(net.get("cidr", ""))) is not True:
+        errors.append(f"network.cidr : {net.get('cidr')!r} invalide")
+
+    sg = a.get("security_group") or {}
+    if sg and _valid_source(str(sg.get("ssh_cidr", ""))) is not True:
+        errors.append(f"security_group.ssh_cidr : {sg.get('ssh_cidr')!r} invalide")
+    for port in sg.get("custom_tcp_ports") or []:
+        if type(port) is not int or not 1 <= port <= 65535:
+            errors.append(f"security_group.custom_tcp_ports : {port!r} n'est pas un port valide")
+
+    for key, value in (a.get("keypair") or {}).items():
+        safe(value, f"keypair.{key}")
+
+    vms = a.get("instances") or []
+    names = [vm.get("name") for vm in vms if isinstance(vm, dict)]
+    for vm_name in names:
+        name(vm_name, "instances.name")
+    for vm in vms:
+        safe(vm.get("ssh_user", "") if isinstance(vm, dict) else None, "instances.ssh_user")
+    proxy = a.get("internet_proxy")
+    if proxy and proxy.get("bastion") not in names:
+        errors.append("internet_proxy.bastion : doit être le nom d'une machine du projet")
+    for vol in a.get("volumes") or []:
+        if vol.get("attach_to") and vol["attach_to"] not in names:
+            errors.append(f"volumes.attach_to : {vol['attach_to']!r} n'est pas une machine du projet")
+        if type(vol.get("size")) is not int or vol["size"] < 1:
+            errors.append(f"volumes.size : {vol.get('size')!r} invalide")
+    return errors
+
+
 def _remaining(limits, key):
     used, maximum = limits.get(key, (0, -1))
     return None if maximum in (-1, None) else maximum - used

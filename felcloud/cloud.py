@@ -104,7 +104,8 @@ def discover(conn):
         (Flavor(f.name, f.vcpus, f.ram, f.disk) for f in conn.compute.flavors(details=True)),
         key=lambda f: (f.name.split(".")[1] if f.name.count(".") >= 2 else f.name, f.vcpus, f.ram_mb),
     )
-    images = sorted((i.name for i in conn.image.images(status="active")), key=_image_rank)
+    # Glance autorise les images sans nom et les doublons : on écarte les unes, on fusionne les autres.
+    images = sorted({i.name for i in conn.image.images(status="active") if i.name}, key=_image_rank)
 
     # Routeurs reliés à l'extérieur, et réseaux sur lesquels ils sont branchés : sans un
     # tel routeur, un réseau existant ne peut pas recevoir d'IP publique.
