@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Installe la commande `felcloud` pour l'utilisateur courant, sans sudo (Linux et macOS).
 #
-#   curl -fsSL https://raw.githubusercontent.com/oussamaZaid12/felcloud/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/felcloud-io/felcloud-iac/main/install.sh | bash
 #
 #   ./install.sh              installation depuis ce dossier
 #   ./install.sh --dev        installation modifiable (le code du dépôt est utilisé en direct)
@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-REPO_URL="https://github.com/oussamaZaid12/felcloud"
+REPO_URL="https://github.com/felcloud-io/felcloud-iac"
 APP_DIR="${FELCLOUD_HOME:-$HOME/.local/share/felcloud}"
 BIN_DIR="$HOME/.local/bin"
 MARK="# ajouté par felcloud"

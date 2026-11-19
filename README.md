@@ -13,7 +13,7 @@ vérifie que les machines répondent, puis supprime tout proprement quand tu as 
 Fonctionne sous **Linux** (Ubuntu, Debian, Fedora, Arch...) et **macOS**. Copie cette ligne dans un terminal :
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/oussamaZaid12/felcloud/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/felcloud-io/felcloud-iac/main/install.sh | bash
 ```
 
 Pas besoin de sudo ni de Python : si la machine n'a pas de Python récent, felcloud télécharge le sien.
@@ -139,7 +139,7 @@ Supprime tout sur FelCloud, puis le dossier du projet, puis sa clé SSH.
 | tester mes identifiants | `felcloud check` |
 | vérifier ma machine | `felcloud doctor` |
 | changer le dossier des projets | `felcloud setup` |
-| désinstaller felcloud | `curl -fsSL https://raw.githubusercontent.com/oussamaZaid12/felcloud/main/install.sh \| bash -s -- --uninstall` |
+| désinstaller felcloud | `curl -fsSL https://raw.githubusercontent.com/felcloud-io/felcloud-iac/main/install.sh \| bash -s -- --uninstall` |
 | tout faire par menus | `felcloud` |
 
 ## Problèmes fréquents
@@ -162,8 +162,8 @@ Supprime tout sur FelCloud, puis le dossier du projet, puis sa clé SSH.
 ## Pour contribuer
 
 ```bash
-git clone https://github.com/oussamaZaid12/felcloud.git
-cd felcloud
+git clone https://github.com/felcloud-io/felcloud-iac.git
+cd felcloud-iac
 ./install.sh --dev      # le code du dépôt est utilisé directement
 ```
 

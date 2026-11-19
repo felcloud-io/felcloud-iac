@@ -30,7 +30,7 @@ Il te faut **Linux** (Ubuntu, Debian, Fedora, Arch...) ou **macOS**, avec `curl`
 ### Étape 2 — Installer felcloud
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/oussamaZaid12/felcloud/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/felcloud-io/felcloud-iac/main/install.sh | bash
 ```
 
 Puis, dans un **nouveau terminal**, vérifie :
@@ -162,10 +162,10 @@ Pas besoin de droits administrateur (`sudo`) pour installer felcloud lui-même.
 ## 2. Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/oussamaZaid12/felcloud/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/felcloud-io/felcloud-iac/main/install.sh | bash
 ```
 
-Fonctionne sous Linux et macOS. Pour travailler sur le code : `git clone https://github.com/oussamaZaid12/felcloud.git && cd felcloud && ./install.sh --dev`.
+Fonctionne sous Linux et macOS. Pour travailler sur le code : `git clone https://github.com/felcloud-io/felcloud-iac.git && cd felcloud-iac && ./install.sh --dev`.
 
 Le script :
 
